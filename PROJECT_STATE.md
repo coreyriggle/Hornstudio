@@ -4791,3 +4791,17 @@ shipped compacts, scale f0/f0V by 25/20 (e.g. 625/2500 instead of 500/2000). Asp
     the wall (fit clearance, glue line); designed-in keeps the overlap for
     the union. Stats line says so. bench_plug pins both (spoke outer edge
     vs the unopened wall: 0.2 mm; designed-in edge inside the shell).
+
+244. (LOADED DESIGNS KEEP THEIR THROAT ACROSS A FAMILY SWITCH, 2026-11-08,
+    user: loaded a Waveguide Generator R-OSSE cfg hand-converted to a design
+    file (JBL_2430H: R 190, a 34, r0 19.05), switched to biradial, "it reset
+    the config".) Entry 149's SHARED_KEEP only spares params in S._touched,
+    and _touched was set ONLY by dragging a control: applyDesign's merge skips
+    it (not an initial S key), and so did the autosave restore. So a loaded or
+    reloaded design's 38.1 mm throat read as untouched and biradial's A-290
+    reference (50.8) overwrote it. Now applyDesign marks the shared keys the
+    file carries (fc, throatD, covH, covV, T0) as touched and restores a
+    saved _touched set; the boot restore restores _touched too. Unshared keys
+    (flareR, R-OSSE dials, ...) still take the new family's reference, by
+    design. Smoke pin drives the real loadFile -> familySel path (fails on
+    the old code). Ladder green.

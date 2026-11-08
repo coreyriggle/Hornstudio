@@ -2350,6 +2350,22 @@ check('NURBS STEP + PHASE PLUG (entry 242, forum on build 241: "the phase plug i
   /PLUS phase_plug\.step \(bullet \+ /.test(htmlB) && /var profP = profOf\(lastAct, 220\), pmN = plugMeshes\(profP, 64, S\.thick\)/.test(htmlB) &&
   /the NURBS STEP saves a second phase_plug\.step beside the horn surface/.test(htmlB) && !/the NURBS STEP is the horn surface only/.test(htmlB));
 
+// ---- entry 244: a LOADED design's throat survives a family switch ----
+(function () {
+  var prevFR = global.FileReader;
+  global.FileReader = function () { var self = this; this.readAsText = function (f) { self.result = f._text; self.onload(); }; };
+  var design = JSON.stringify({ hsDesign: 1, state: { family: 'rosse', throatD: 38.1, rosR: 190, rosA: 34, rosA0: 0, rosK: 0.5, rosRr: 0.4, rosB: 0.2, rosM: 0.85, rosQ: 3.4 } });
+  registry.loadFile._h.change({ target: { files: [{ _text: design }], value: '' } }); drain();
+  var loadedOk = Math.abs(+registry.num_throatD.value - 38.1) < 1e-9 && registry.familySel.value === 'rosse';
+  registry.familySel._h.change({ target: { value: 'biradial' } }); drain();
+  var keptOk = Math.abs(+registry.num_throatD.value - 38.1) < 1e-9;   // biradial's default is 50.8
+  var flareOk = +registry.num_flareR.value === 25;                    // unshared keys still take the family's reference
+  global.FileReader = prevFR;
+  check('LOADED DESIGN SURVIVES A FAMILY SWITCH (entry 244, user: loaded the R-OSSE cfg conversion, switched to biradial, "it reset the config"): loaded shared params count as user-set, so throatD 38.1 stays (not biradial\'s 50.8) while unshared keys take the new family\'s reference; autosave restores the touched set',
+    loadedOk && keptOk && flareOk && /as9\.state\._touched/.test(htmlB));
+  registry.familySel._h.change({ target: { value: 'jmlc' } }); drain();
+})();
+
 check('errbox clean', !errEl._t || !/OVERSHOOT/.test(errEl._t));
 console.log(fail ? ('\n' + fail + ' FAILURES') : '\nALL PASS');
 process.exit(fail ? 1 : 0);
